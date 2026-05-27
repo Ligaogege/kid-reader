@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>📚 快乐阅读 - 儿童阅读单词学习</title>
+    <meta name="theme-color" content="#4A90D9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #333; }
+.header { background: rgba(255,255,255,0.95); padding: 15px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+.header-content { display: flex; justify-content: space-between; align-items: center; max-width: 800px; margin: 0 auto; flex-wrap: wrap; gap: 10px; }
+.header h1 { font-size: 1.5rem; color: #4A90D9; }
+.user-info { display: flex; gap: 10px; font-size: 0.9rem; flex-wrap: wrap; }
+.user-info span { background: #FFF3CD; padding: 5px 12px; border-radius: 20px; }
+.main-nav { background: white; display: flex; justify-content: space-around; padding: 10px 0; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; }
+.nav-btn { background: none; border: none; padding: 8px 16px; font-size: 1rem; cursor: pointer; border-radius: 20px; transition: all 0.3s; }
+.nav-btn.active { background: #4A90D9; color: white; }
+.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+.page { display: none; animation: fadeIn 0.3s; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.welcome-card { background: white; border-radius: 15px; padding: 25px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.welcome-card h2 { color: #4A90D9; margin-bottom: 10px; }
+.quick-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+.stat-card { background: white; border-radius: 15px; padding: 20px 15px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.stat-icon { font-size: 2rem; margin-bottom: 10px; }
+.stat-value { font-size: 1.8rem; font-weight: bold; color: #4A90D9; }
+.stat-label { font-size: 0.85rem; color: #666; margin-top: 5px; }
+.daily-task { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.daily-task h3 { margin-bottom: 15px; }
+.task-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eee; }
+.task-item:last-child { border-bottom: none; }
+.task-item input[type="checkbox"] { width: 20px; height: 20px; accent-color: #4A90D9; }
+.badges-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 15px; padding: 15px 0; }
+.badge-item { background: #FFF9E6; border-radius: 10px; padding: 15px 10px; text-align: center; border: 2px solid #FFD700; }
+.badge-icon { font-size: 2rem; }
+.badge-name { font-size: 0.75rem; color: #666; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 15px 20px; border-radius: 15px; flex-wrap: wrap; gap: 10px; }
+.filter-select { padding: 8px 15px; border: 2px solid #4A90D9; border-radius: 20px; background: white; }
+.books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; }
+.book-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s; }
+.book-card:hover { transform: translateY(-5px); }
+.book-cover { height: 120px; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+.book-info { padding: 15px; }
+.book-title { font-size: 1rem; font-weight: bold; margin-bottom: 8px; }
+.book-level { color: #FFD700; }
+.back-btn { background: #4A90D9; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; margin-bottom: 20px; }
+.book-content { background: white; border-radius: 15px; padding: 30px; margin-bottom: 20px; min-height: 200px; line-height: 2; font-size: 1.2rem; }
+.word-highlight { color: #4A90D9; font-weight: bold; cursor: pointer; border-bottom: 2px dashed #4A90D9; }
+.reading-controls { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+.control-btn { background: #4A90D9; color: white; border: none; padding: 10px 25px; border-radius: 20px; cursor: pointer; }
+.control-btn:disabled { background: #ccc; }
+.finish-btn { width: 100%; background: #28a745; color: white; border: none; padding: 15px; border-radius: 15px; font-size: 1.1rem; cursor: pointer; }
+.word-card { background: white; border-radius: 15px; padding: 30px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.word-image { font-size: 5rem; margin-bottom: 20px; }
+.word-text { font-size: 2.5rem; color: #4A90D9; margin-bottom: 10px; }
+.word-pronunciation { color: #666; margin-bottom: 15px; }
+.speak-btn { background: #4A90D9; color: white; border: none; padding: 10px 25px; border-radius: 20px; cursor: pointer; margin-bottom: 20px; }
+.word-meaning { font-size: 1.5rem; margin-bottom: 15px; }
+.word-sentence { color: #666; font-style: italic; }
+.word-actions { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.action-btn { flex: 1; min-width: 80px; padding: 12px; border: 2px solid #4A90D9; background: white; border-radius: 10px; cursor: pointer; }
+.action-btn.mastered { background: #28a745; color: white; border-color: #28a745; }
+.word-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.tab-btn { flex: 1; min-width: 70px; padding: 12px; border: none; background: white; border-radius: 10px; cursor: pointer; }
+.tab-btn.active { background: #4A90D9; color: white; }
+.word-section { display: none; }
+.word-section.active { display: block; }
+.test-question { background: white; border-radius: 15px; padding: 25px; margin-bottom: 20px; }
+.test-options { display: grid; gap: 10px; margin-top: 20px; }
+.test-option { padding: 15px; border: 2px solid #ddd; border-radius: 10px; cursor: pointer; }
+.test-option:hover { border-color: #4A90D9; background: #E3F2FD; }
+.test-option.correct { border-color: #28a745; background: #D4EDDA; }
+.test-option.wrong { border-color: #dc3545; background: #F8D7DA; }
+.week-chart { display: flex; justify-content: space-around; align-items: flex-end; height: 150px; background: white; padding: 20px; border-radius: 15px; }
+.day-bar { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.bar { width: 30px; background: linear-gradient(#4A90D9, #667eea); border-radius: 5px 5px 0 0; }
+.day-label { font-size: 0.8rem; color: #666; }
+.settings-list { background: white; border-radius: 15px; padding: 20px; }
+.setting-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee; flex-wrap: wrap; gap: 10px; }
+.setting-item:last-child { border-bottom: none; }
+.setting-item input, .setting-item select { padding: 8px 15px; border: 2px solid #ddd; border-radius: 10px; }
+.reset-btn { width: 100%; padding: 12px; background: #dc3545; color: white; border: none; border-radius: 10px; cursor: pointer; margin-top: 15px; }
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(0,0,0,0.8); color: white; padding: 12px 25px; border-radius: 25px; opacity: 0; transition: all 0.3s; z-index: 1000; }
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+@media (max-width: 600px) { .quick-stats { grid-template-columns: 1fr; } .word-actions { flex-direction: column; } .header-content { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>📚 快乐阅读</h1>
+            <div class="user-info">
+                <span class="points">⭐ <span id="totalPoints">0</span> 积分</span>
+                <span class="streak">🔥 <span id="streakDays">0</span> 天连续</span>
+            </div>
+        </div>
+    </header>
+    <nav class="main-nav">
+        <button class="nav-btn active" data-page="home">🏠 首页</button>
+        <button class="nav-btn" data-page="reader">📖 阅读</button>
+        <button class="nav-btn" data-page="vocabulary">📝 单词</button>
+        <button class="nav-btn" data-page="progress">📊 进度</button>
+    </nav>
+    <main class="container">
+        <section id="home-page" class="page active">
+            <div class="welcome-card"><h2>👋 欢迎回来！</h2><p>今天也要坚持阅读哦~</p></div>
+            <div class="quick-stats">
+                <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-value" id="booksRead">0</div><div class="stat-label">已读书本</div></div>
+                <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-value" id="wordsLearned">0</div><div class="stat-label">学会单词</div></div>
+                <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-value" id="readMinutes">0</div><div class="stat-label">阅读分钟</div></div>
+            </div>
+            <div class="daily-task">
+                <h3>📋 今日任务</h3>
+                <div class="task-item"><input type="checkbox" id="task-read"><label for="task-read">阅读 1 本书（15 分钟）</label></div>
+                <div class="task-item"><input type="checkbox" id="task-words"><label for="task-words">学习 5 个单词</label></div>
+            </div>
+            <div class="achievement-preview"><h3>🏆 最近成就</h3><div id="recentBadges" class="badges-grid"></div></div>
+        </section>
+        <section id="reader-page" class="page">
+            <div class="page-header"><h2>📖 绘本图书馆</h2><select id="levelFilter" class="filter-select"><option value="all">全部难度</option><option value="1">⭐ 入门级</option><option value="2">⭐⭐ 初级</option><option value="3">⭐⭐⭐ 中级</option></select></div>
+            <div id="booksList" class="books-grid"></div>
+        </section>
+        <section id="book-detail-page" class="page">
+            <button class="back-btn" onclick="app.navigate('reader')">← 返回</button>
+            <div id="bookContent" class="book-content"></div>
+            <div class="reading-controls">
+                <button id="prevPage" class="control-btn">上一页</button>
+                <span id="pageIndicator">1 / 10</span>
+                <button id="nextPage" class="control-btn">下一页</button>
+            </div>
+            <button id="finishReading" class="finish-btn">✅ 读完啦！</button>
+        </section>
+        <section id="vocabulary-page" class="page">
+            <div class="page-header"><h2>📝 单词学习</h2><div class="word-progress">今日：<span id="todayWords">0</span>/10</div></div>
+            <div class="word-tabs">
+                <button class="tab-btn active" data-tab="learn">📚 学习</button>
+                <button class="tab-btn" data-tab="review">🔄 复习</button>
+                <button class="tab-btn" data-tab="test">✏️ 测试</button>
+            </div>
+            <div id="wordLearn" class="word-section active">
+                <div class="word-card">
+                    <div class="word-image" id="wordImage">🍎</div>
+                    <h2 class="word-text" id="wordText">apple</h2>
+                    <p class="word-pronunciation" id="wordPron">/ˈæp.əl/</p>
+                    <button class="speak-btn" onclick="vocabulary.speakWord()">🔊 发音</button>
+                    <p class="word-meaning" id="wordMeaning">苹果</p>
+                    <p class="word-sentence" id="wordSentence">I eat an apple every day.</p>
+                </div>
+                <div class="word-actions">
+                    <button class="action-btn" onclick="vocabulary.prevWord()">← 上一个</button>
+                    <button class="action-btn mastered" onclick="vocabulary.markMastered()">✅ 学会了</button>
+                    <button class="action-btn" onclick="vocabulary.nextWord()">下一个 →</button>
+                </div>
+            </div>
+            <div id="wordReview" class="word-section"><div id="reviewList" class="review-list"></div></div>
+            <div id="wordTest" class="word-section"><div class="test-question"><p id="testQuestion">这个单词是什么意思？</p><div id="testOptions" class="test-options"></div></div><div id="testResult" class="test-result"></div></div>
+        </section>
+        <section id="progress-page" class="page">
+            <h2>📊 学习报告</h2>
+            <div class="progress-section"><h3>📈 本周统计</h3><div class="chart-container"><div id="weekChart" class="week-chart"></div></div></div>
+            <div class="progress-section"><h3>🏆 成就勋章</h3><div id="allBadges" class="badges-grid"></div></div>
+            <div class="progress-section"><h3>⚙️ 设置</h3><div class="settings-list">
+                <div class="setting-item"><label>每日提醒时间</label><input type="time" id="reminderTime" value="19:00"></div>
+                <div class="setting-item"><label>使用时长限制</label><select id="timeLimit"><option value="30">30 分钟</option><option value="60" selected>60 分钟</option><option value="90">90 分钟</option><option value="0">无限制</option></select></div>
+                <button class="reset-btn" onclick="app.resetData()">🔄 重置所有数据</button>
+            </div></div>
+        </section>
+    </main>
+    <div id="toast" class="toast"></div>
+<script>
+const storage = {
+    get(key, defaultValue = null) { const data = localStorage.getItem('kidReader_' + key); return data ? JSON.parse(data) : defaultValue; },
+    set(key, value) { localStorage.setItem('kidReader_' + key, JSON.stringify(value)); },
+    getUserData() { return this.get('userData', { points: 0, streakDays: 0, lastReadDate: null, booksRead: 0, wordsLearned: 0, readMinutes: 0, badges: [], settings: { reminderTime: '19:00', timeLimit: 60 } }); },
+    saveUserData(data) { this.set('userData', data); },
+    getReadingProgress() { return this.get('readingProgress', { currentBook: null, currentPage: 0, completedBooks: [], dailyTasks: { read: false, words: false } }); },
+    saveReadingProgress(data) { this.set('readingProgress', data); },
+    getVocabulary() { return this.get('vocabulary', { learned: [], mastered: [], reviewQueue: [], todayCount: 0, lastResetDate: null }); },
+    saveVocabulary(data) { this.set('vocabulary', data); },
+    getLearningRecords() { return this.get('learningRecords', []); },
+    addLearningRecord(record) { const records = this.getLearningRecords(); records.push({ date: new Date().toISOString(), ...record }); this.set('learningRecords', records); },
+    getWeekRecords() { const records = this.getLearningRecords(); const now = new Date(); const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); return records.filter(r => new Date(r.date) >= weekAgo); },
+    resetDailyData() { const today = new Date().toDateString(); const lastReset = this.get('lastResetDate'); if (lastReset !== today) { const vocab = this.getVocabulary(); vocab.todayCount = 0; vocab.lastResetDate = today; this.saveVocabulary(vocab); const progress = this.getReadingProgress(); progress.dailyTasks = { read: false, words: false }; this.saveReadingProgress(progress); this.set('lastResetDate', today); } },
+    clearAll() { localStorage.clear(); }
+};
+
+const booksData = [
+    { id: 1, title: "The Little Cat", titleCn: "小猫的故事", level: 1, icon: "🐱", pages: ["This is a <span class='word-highlight' data-word='cat'>cat</span>.", "The <span class='word-highlight' data-word='cat'>cat</span> is small.", "The cat likes <span class='word-highlight' data-word='milk'>milk</span>.", "The cat plays with a ball.", "The cat is happy."], words: ["cat", "milk", "small", "plays", "happy"] },
+    { id: 2, title: "My Family", titleCn: "我的家人", level: 1, icon: "👨‍👩‍👧", pages: ["This is my <span class='word-highlight' data-word='family'>family</span>.", "This is my <span class='word-highlight' data-word='father'>father</span>.", "This is my <span class='word-highlight' data-word='mother'>mother</span>.", "I love my family."], words: ["family", "father", "mother", "love"] },
+    { id: 3, title: "Colors", titleCn: "颜色", level: 1, icon: "🎨", pages: ["The sky is <span class='word-highlight' data-word='blue'>blue</span>.", "The grass is <span class='word-highlight' data-word='green'>green</span>.", "The sun is <span class='word-highlight' data-word='yellow'>yellow</span>.", "The apple is <span class='word-highlight' data-word='red'>red</span>."], words: ["blue", "green", "yellow", "red", "color"] },
+    { id: 4, title: "At the Zoo", titleCn: "在动物园", level: 2, icon: "🦁", pages: ["Today we go to the zoo.", "I see a big <span class='word-highlight' data-word='lion'>lion</span>.", "The lion is sleeping.", "I see a tall <span class='word-highlight' data-word='giraffe'>giraffe</span>.", "The giraffe eats leaves.", "I see a cute <span class='word-highlight' data-word='panda'>panda</span>."], words: ["zoo", "lion", "giraffe", "panda", "sleeping"] },
+    { id: 5, title: "My School", titleCn: "我的学校", level: 2, icon: "🏫", pages: ["I go to school every day.", "My school is very big.", "I have many <span class='word-highlight' data-word='friends'>friends</span>.", "We play together.", "I like my teacher.", "I love learning."], words: ["school", "friends", "teacher", "learning", "together"] },
+    { id: 6, title: "The Four Seasons", titleCn: "四季", level: 3, icon: "🌸", pages: ["There are four seasons in a year.", "Spring is warm. Flowers bloom.", "Summer is hot. We swim.", "Autumn is cool. Leaves fall.", "Winter is cold. It snows.", "Each season is beautiful."], words: ["seasons", "spring", "summer", "autumn", "winter"] }
+];
+
+const wordsData = [
+    { word: "apple", pronunciation: "/ˈæp.əl/", meaning: "苹果", sentence: "I eat an apple every day.", icon: "🍎" },
+    { word: "banana", pronunciation: "/bəˈnæn.ə/", meaning: "香蕉", sentence: "Monkeys love bananas.", icon: "🍌" },
+    { word: "cat", pronunciation: "/kæt/", meaning: "猫", sentence: "The cat is sleeping.", icon: "🐱" },
+    { word: "dog", pronunciation: "/dɒɡ/", meaning: "狗", sentence: "My dog runs fast.", icon: "🐶" },
+    { word: "elephant", pronunciation: "/ˈel.ɪ.fənt/", meaning: "大象", sentence: "The elephant is very big.", icon: "🐘" },
+    { word: "fish", pronunciation: "/fɪʃ/", meaning: "鱼", sentence: "Fish swim in the water.", icon: "🐟" },
+    { word: "giraffe", pronunciation: "/dʒɪˈrɑːf/", meaning: "长颈鹿", sentence: "Giraffes have long necks.", icon: "🦒" },
+    { word: "house", pronunciation: "/haʊs/", meaning: "房子", sentence: "We live in a house.", icon: "🏠" },
+    { word: "ice cream", pronunciation: "/ˈaɪs kriːm/", meaning: "冰淇淋", sentence: "Ice cream is cold and sweet.", icon: "🍦" },
+    { word: "juice", pronunciation: "/dʒuːs/", meaning: "果汁", sentence: "I drink orange juice.", icon: "🧃" },
+    { word: "kite", pronunciation: "/kaɪt/", meaning: "风筝", sentence: "The kite flies high.", icon: "🪁" },
+    { word: "lion", pronunciation: "/ˈlaɪ.ən/", meaning: "狮子", sentence: "The lion is the king of animals.", icon: "🦁" },
+    { word: "milk", pronunciation: "/mɪlk/", meaning: "牛奶", sentence: "I drink milk every morning.", icon: "🥛" },
+    { word: "nose", pronunciation: "/nəʊz/", meaning: "鼻子", sentence: "Touch your nose.", icon: "👃" },
+    { word: "orange", pronunciation: "/ˈɒr.ɪndʒ/", meaning: "橙子", sentence: "Oranges are rich in vitamin C.", icon: "🍊" },
+    { word: "panda", pronunciation: "/ˈpæn.də/", meaning: "熊猫", sentence: "Pandas eat bamboo.", icon: "🐼" },
+    { word: "queen", pronunciation: "/kwiːn/", meaning: "女王", sentence: "The queen wears a crown.", icon: "👑" },
+    { word: "rabbit", pronunciation: "/ˈræb.ɪt/", meaning: "兔子", sentence: "Rabbits have long ears.", icon: "🐰" },
+    { word: "sun", pronunciation: "/sʌn/", meaning: "太阳", sentence: "The sun is hot.", icon: "☀️" },
+    { word: "tree", pronunciation: "/triː/", meaning: "树", sentence: "The tree is very tall.", icon: "🌳" },
+    { word: "umbrella", pronunciation: "/ʌmˈbrel.ə/", meaning: "雨伞", sentence: "Take an umbrella when it rains.", icon: "☂️" },
+    { word: "violin", pronunciation: "/ˌvaɪ.əˈlɪn/", meaning: "小提琴", sentence: "She plays the violin.", icon: "🎻" },
+    { word: "watch", pronunciation: "/wɒtʃ/", meaning: "手表", sentence: "I wear a watch.", icon: "⌚" },
+    { word: "box", pronunciation: "/bɒks/", meaning: "盒子", sentence: "What is in the box?", icon: "📦" },
+    { word: "yoyo", pronunciation: "/ˈjəʊ.jəʊ/", meaning: "溜溜球", sentence: "I can play with a yoyo.", icon: "🪀" },
+    { word: "zebra", pronunciation: "/ˈzeb.rə/", meaning: "斑马", sentence: "Zebras have black and white stripes.", icon: "🦓" }
+];
+
+const badgesData = [
+    { id: "first_book", name: "第一本书", icon: "📖", condition: "读完第一本书" },
+    { id: "book_5", name: "阅读新星", icon: "⭐", condition: "读完 5 本书" },
+    { id: "book_10", name: "阅读达人", icon: "🌟", condition: "读完 10 本书" },
+    { id: "words_10", name: "单词新手", icon: "📝", condition: "学会 10 个单词" },
+    { id: "words_50", name: "单词高手", icon: "✏️", condition: "学会 50 个单词" },
+    { id: "streak_3", name: "坚持 3 天", icon: "🔥", condition: "连续学习 3 天" },
+    { id: "streak_7", name: "一周挑战", icon: "🏆", condition: "连续学习 7 天" },
+    { id: "minutes_60", name: "阅读 1 小时", icon: "⏱️", condition: "累计阅读 60 分钟" }
+];
+
+const reader = {
+    currentBook: null, currentPage: 0, startTime: null,
+    init() { this.renderBooksList(); this.bindEvents(); },
+    renderBooksList() { const container = document.getElementById('booksList'); const level = document.getElementById('levelFilter').value; let books = booksData; if (level !== 'all') books = books.filter(b => b.level === parseInt(level)); container.innerHTML = books.map(book => '<div class="book-card" onclick="reader.openBook(' + book.id + ')"><div class="book-cover">' + book.icon + '</div><div class="book-info"><div class="book-title">' + book.title + '</div><div class="book-title" style="font-size:0.85rem;color:#666;">' + book.titleCn + '</div><div class="book-level">' + '⭐'.repeat(book.level) + '</div></div></div>').join(''); },
+    openBook(bookId) { this.currentBook = booksData.find(b => b.id === bookId); this.currentPage = 0; this.startTime = Date.now(); app.navigate('book-detail'); this.renderPage(); },
+    renderPage() { if (!this.currentBook) return; document.getElementById('bookContent').innerHTML = '<p>' + this.currentBook.pages[this.currentPage] + '</p>'; document.getElementById('pageIndicator').textContent = (this.currentPage + 1) + ' / ' + this.currentBook.pages.length; document.getElementById('prevPage').disabled = this.currentPage === 0; document.getElementById('nextPage').disabled = this.currentPage === this.currentBook.pages.length - 1; this.bindWordClicks(); },
+    bindWordClicks() { document.querySelectorAll('.word-highlight').forEach(el => { el.addEventListener('click', (e) => { e.stopPropagation(); const word = e.target.dataset.word; vocabulary.addWordToLearn(word); app.showToast('✅ "' + word + '" 已加入生词本'); }); }); },
+    prevPage() { if (this.currentPage > 0) { this.currentPage--; this.renderPage(); } },
+    nextPage() { if (this.currentPage < this.currentBook.pages.length - 1) { this.currentPage++; this.renderPage(); } },
+    finishReading() { if (!this.currentBook) return; const readMinutes = Math.max(1, Math.floor((Date.now() - this.startTime) / 60000)); const userData = storage.getUserData(); userData.points += 10 + readMinutes; userData.booksRead++; userData.readMinutes += readMinutes; const progress = storage.getReadingProgress(); if (!progress.completedBooks.includes(this.currentBook.id)) { progress.completedBooks.push(this.currentBook.id); userData.points += 20; progress.dailyTasks.read = true; } storage.saveUserData(userData); storage.saveReadingProgress(progress); storage.addLearningRecord({ type: 'reading', bookId: this.currentBook.id, minutes: readMinutes }); this.checkAchievements(userData); app.showToast('🎉 完成阅读！+' + (10 + readMinutes) + ' 积分'); app.navigate('reader'); app.updateUI(); },
+    checkAchievements(userData) { const newBadges = []; if (userData.booksRead >= 1 && !userData.badges.includes('first_book')) newBadges.push('first_book'); if (userData.booksRead >= 5 && !userData.badges.includes('book_5')) newBadges.push('book_5'); if (userData.booksRead >= 10 && !userData.badges.includes('book_10')) newBadges.push('book_10'); if (userData.readMinutes >= 60 && !userData.badges.includes('minutes_60')) newBadges.push('minutes_60'); if (newBadges.length > 0) { userData.badges.push(...newBadges); storage.saveUserData(userData); app.showToast('🏆 获得新成就：' + newBadges.map(id => badgesData.find(b=>b.id===id)?.name).join('、')); } },
+    bindEvents() { document.getElementById('levelFilter').addEventListener('change', () => this.renderBooksList()); document.getElementById('prevPage').addEventListener('click', () => this.prevPage()); document.getElementById('nextPage').addEventListener('click', () => this.nextPage()); document.getElementById('finishReading').addEventListener('click', () => this.finishReading()); }
+};
+
+const vocabulary = {
+    currentIndex: 0, learningWords: [],
+    init() { this.loadLearningWords(); this.renderWordCard(); this.bindEvents(); },
+    loadLearningWords() { const vocab = storage.getVocabulary(); this.learningWords = vocab.learned.length > 0 ? vocab.learned : wordsData.slice(0, 10); },
+    renderWordCard() { if (this.learningWords.length === 0) return; const wordData = this.getWordData(this.learningWords[this.currentIndex]); if (!wordData) return; document.getElementById('wordImage').textContent = wordData.icon; document.getElementById('wordText').textContent = wordData.word; document.getElementById('wordPron').textContent = wordData.pronunciation; document.getElementById('wordMeaning').textContent = wordData.meaning; document.getElementById('wordSentence').textContent = wordData.sentence; document.getElementById('todayWords').textContent = storage.getVocabulary().todayCount; },
+    getWordData(word) { if (typeof word === 'string') return wordsData.find(w => w.word === word); return word; },
+    nextWord() { if (this.currentIndex < this.learningWords.length - 1) { this.currentIndex++; this.renderWordCard(); } else { app.showToast('🎉 今天的学习完成啦！'); } },
+    prevWord() { if (this.currentIndex > 0) { this.currentIndex--; this.renderWordCard(); } },
+    markMastered() { const word = this.learningWords[this.currentIndex]; const vocab = storage.getVocabulary(); if (!vocab.mastered.includes(word)) { vocab.mastered.push(word); vocab.todayCount++; const userData = storage.getUserData(); userData.points += 5; userData.wordsLearned++; storage.saveVocabulary(vocab); storage.saveUserData(userData); storage.addLearningRecord({ type: 'vocabulary', word: word }); this.checkAchievements(userData); app.showToast('✅ "' + word + '" 已掌握！+5 积分'); app.updateUI(); } this.nextWord(); },
+    addWordToLearn(word) { const vocab = storage.getVocabulary(); if (!vocab.learned.includes(word)) { vocab.learned.push(word); storage.saveVocabulary(vocab); } },
+    speakWord() { const word = this.learningWords[this.currentIndex]; const wordData = this.getWordData(word); if ('speechSynthesis' in window) { const utterance = new SpeechSynthesisUtterance(wordData.word); utterance.lang = 'en-US'; utterance.rate = 0.8; speechSynthesis.speak(utterance); } else { app.showToast('🔊 您的浏览器不支持发音功能'); } },
+    renderReviewList() { const vocab = storage.getVocabulary(); const container = document.getElementById('reviewList'); if (vocab.mastered.length === 0) { container.innerHTML = '<p style="text-align:center;padding:40px;color:#666;">还没有掌握的单词哦~</p>'; return; } container.innerHTML = vocab.mastered.map(word => { const data = this.getWordData(word); return '<div class="word-card" style="padding:15px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><strong>' + (data?.word || word) + '</strong><span style="color:#666;margin-left:10px;">' + (data?.meaning || '') + '</span></div><button class="speak-btn" style="padding:5px 15px;font-size:0.85rem;" onclick="vocabulary.speakWordByIndex('' + word + '')">🔊</button></div></div>'; }).join(''); },
+    speakWordByIndex(word) { if ('speechSynthesis' in window) { const utterance = new SpeechSynthesisUtterance(word); utterance.lang = 'en-US'; utterance.rate = 0.8; speechSynthesis.speak(utterance); } },
+    generateTest() { const vocab = storage.getVocabulary(); const learnedWords = vocab.learned.length > 0 ? vocab.learned : wordsData.slice(0, 10).map(w => w.word); if (learnedWords.length < 4) { document.getElementById('wordTest').innerHTML = '<p style="text-align:center;padding:40px;">先学习一些单词再来测试吧~</p>'; return; } const correctWord = learnedWords[Math.floor(Math.random() * learnedWords.length)]; const wordData = this.getWordData(correctWord); const wrongOptions = wordsData.filter(w => w.word !== correctWord).sort(() => Math.random() - 0.5).slice(0, 3).map(w => w.meaning); const options = [...wrongOptions, wordData.meaning].sort(() => Math.random() - 0.5); document.getElementById('testQuestion').textContent = '"' + correctWord + '" 是什么意思？'; document.getElementById('testOptions').innerHTML = options.map(opt => '<div class="test-option" onclick="vocabulary.checkAnswer('' + opt + '', '' + wordData.meaning + '')">' + opt + '</div>').join(''); document.getElementById('testResult').innerHTML = ''; },
+    checkAnswer(selected, correct) { const resultDiv = document.getElementById('testResult'); const options = document.querySelectorAll('.test-option'); options.forEach(opt => { if (opt.textContent === correct) opt.classList.add('correct'); else if (opt.textContent === selected && selected !== correct) opt.classList.add('wrong'); }); if (selected === correct) { resultDiv.innerHTML = '<p style="color:#28a745;text-align:center;margin-top:15px;">🎉 回答正确！+3 积分</p>'; const userData = storage.getUserData(); userData.points += 3; storage.saveUserData(userData); app.updateUI(); } else { resultDiv.innerHTML = '<p style="color:#dc3545;text-align:center;margin-top:15px;">❌ 正确答案是：' + correct + '</p>'; } setTimeout(() => this.generateTest(), 3000); },
+    checkAchievements(userData) { const newBadges = []; if (userData.wordsLearned >= 10 && !userData.badges.includes('words_10')) newBadges.push('words_10'); if (userData.wordsLearned >= 50 && !userData.badges.includes('words_50')) newBadges.push('words_50'); if (newBadges.length > 0) { userData.badges.push(...newBadges); storage.saveUserData(userData); app.showToast('🏆 获得新成就：' + newBadges.map(id => badgesData.find(b=>b.id===id)?.name).join('、')); } },
+    bindEvents() { document.querySelectorAll('.tab-btn').forEach(btn => { btn.addEventListener('click', (e) => { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.word-section').forEach(s => s.classList.remove('active')); e.target.classList.add('active'); const tab = e.target.dataset.tab; document.getElementById('word' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active'); if (tab === 'review') this.renderReviewList(); if (tab === 'test') this.generateTest(); }); }); }
+};
+
+const app = {
+    init() { storage.resetDailyData(); this.bindNavigation(); this.updateUI(); reader.init(); vocabulary.init(); this.renderBadges(); this.renderWeekChart(); },
+    navigate(pageId) { document.querySelectorAll('.page').forEach(page => page.classList.remove('active')); const targetPage = document.getElementById(pageId + '-page'); if (targetPage) targetPage.classList.add('active'); document.querySelectorAll('.nav-btn').forEach(btn => { btn.classList.remove('active'); if (btn.dataset.page === pageId.replace('-detail', '')) btn.classList.add('active'); }); if (pageId === 'progress') { this.renderWeekChart(); this.renderBadges(); } },
+    bindNavigation() { document.querySelectorAll('.nav-btn').forEach(btn => { btn.addEventListener('click', () => this.navigate(btn.dataset.page)); }); },
+    updateUI() { const userData = storage.getUserData(); document.getElementById('totalPoints').textContent = userData.points; document.getElementById('streakDays').textContent = userData.streakDays; document.getElementById('booksRead').textContent = userData.booksRead; document.getElementById('wordsLearned').textContent = userData.wordsLearned; document.getElementById('readMinutes').textContent = userData.readMinutes; const progress = storage.getReadingProgress(); document.getElementById('task-read').checked = progress.dailyTasks.read; document.getElementById('task-words').checked = progress.dailyTasks.words; },
+    renderBadges() { const userData = storage.getUserData(); document.getElementById('allBadges').innerHTML = badgesData.map(badge => { const earned = userData.badges.includes(badge.id); return '<div class="badge-item" style="' + (earned ? '' : 'opacity:0.4;filter:grayscale(1);') + '"><div class="badge-icon">' + badge.icon + '</div><div class="badge-name">' + badge.name + '</div></div>'; }).join(''); const recentBadges = userData.badges.slice(-3).map(id => { const badge = badgesData.find(b => b.id === id); return '<div class="badge-item"><div class="badge-icon">' + (badge?.icon || '🏆') + '</div><div class="badge-name">' + (badge?.name || '未知') + '</div></div>'; }).join(''); document.getElementById('recentBadges').innerHTML = recentBadges || '<p style="color:#666;text-align:center;">还没有获得勋章哦~</p>'; },
+    renderWeekChart() { const records = storage.getWeekRecords(); const days = ['日', '一', '二', '三', '四', '五', '六']; const today = new Date(); const dayData = []; for (let i = 6; i >= 0; i--) { const date = new Date(today); date.setDate(date.getDate() - i); const dateStr = date.toDateString(); const dayRecords = records.filter(r => new Date(r.date).toDateString() === dateStr && r.type === 'reading'); const minutes = dayRecords.reduce((sum, r) => sum + (r.minutes || 0), 0); dayData.push({ day: days[date.getDay()], minutes }); } const maxMinutes = Math.max(...dayData.map(d => d.minutes), 1); document.getElementById('weekChart').innerHTML = dayData.map(d => '<div class="day-bar"><div class="bar" style="height:' + ((d.minutes / maxMinutes) * 100) + 'px;"></div><div class="day-label">' + d.day + '</div></div>').join(''); },
+    showToast(message) { const toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3000); },
+    resetData() { if (confirm('⚠️ 确定要重置所有学习数据吗？此操作不可恢复！')) { storage.clearAll(); location.reload(); } }
+};
+
+document.addEventListener('DOMContentLoaded', () => { app.init(); });
+</script>
+</body>
+</html>
